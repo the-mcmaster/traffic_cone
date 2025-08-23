@@ -1,11 +1,11 @@
 //! # Hosts Module
 
-use std::{collections::HashMap, io::Read};
+use std::collections::HashMap;
 
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
-use crate::{default_headers, HTTP_CLIENT};
+use crate::prelude::*;
 
 pub(crate) type Id = String;
 pub(crate) type Name = String;

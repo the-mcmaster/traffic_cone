@@ -3,15 +3,19 @@
 
 //! # traffic_cone API caller
 
-use log::error;
-use reqwest::blocking::{Client as ReqwestClient, RequestBuilder};
-use std::{fs::File, io::Read, process::exit, sync::LazyLock};
+use crate::prelude::*;
+use reqwest::blocking::{Client as ReqwestClient, RequestBuilder as ReqwestBuilder};
 
-use crate::app::ARGS;
+pub use crate::app::ARGS;
 
 pub mod app;
 pub mod download;
 pub mod hosts;
+pub(crate) mod prelude {
+    pub(crate) use std::{fs::File, io::Read, process::exit, sync::LazyLock};
+    pub(crate) use log::{warn, error};
+    pub(crate) use crate::{HTTP_CLIENT, default_headers};
+}
 
 /// Memoization of the API Key
 static API_KEY: LazyLock<String> = LazyLock::new(|| {
@@ -38,6 +42,6 @@ static API_KEY: LazyLock<String> = LazyLock::new(|| {
 static HTTP_CLIENT: LazyLock<ReqwestClient> = LazyLock::new(|| ReqwestClient::new());
 
 /// Extends the request with default header information.
-fn default_headers(request: RequestBuilder) -> RequestBuilder {
+fn default_headers(request: ReqwestBuilder) -> ReqwestBuilder {
     request.header("Authorization", format!("Bearer {}", API_KEY.as_str()))
 }

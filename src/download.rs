@@ -13,13 +13,10 @@
 //! This requests that a specific download be deleted.
 //! The `id` is a string received as the "id" from `get_downloads()`
 
-use std::{io::Read, process::exit};
-
 use derive_getters::Getters;
-use log::{error, warn};
 use serde::{Deserialize, Serialize};
 
-use crate::{HTTP_CLIENT, default_headers};
+use crate::prelude::*;
 
 pub(crate) type Id = String;
 pub(crate) type FileName = String;
