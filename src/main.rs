@@ -9,11 +9,11 @@ fn main() -> ! {
         use lib::app::Download::*;
         match entry {
             Json => {
-                println!("{}", download::get_downloads());
+                println!(".{}", download::get_downloads());
                 exit(0)
             }
             Delete { id } => {
-                println!("{}", String::from(download::delete_download(id.clone())));
+                println!(".{}", String::from(download::delete_download(id.clone())));
                 exit(0)
             }
         }
@@ -24,7 +24,7 @@ fn main() -> ! {
 
         match entry {
             Json => {
-                println!("{}", hosts::get_hosts());
+                println!(".{}", hosts::get_hosts());
                 exit(0)
             }
         }
@@ -35,11 +35,11 @@ fn main() -> ! {
 
         match entry {
             List => {
-                println!("{}", torrents::get_torrents());
+                println!(".{}", torrents::get_torrents());
                 exit(0)
             }
             AddMagnet { link } => {
-                println!("{}", torrents::add_magnet(link));
+                println!(".{}", torrents::add_magnet(link));
                 exit(0)
             }
         }
@@ -48,6 +48,8 @@ fn main() -> ! {
     let handle_mode = |entry: app::Mode| -> ! {
         use app::Mode::*;
 
+        eprintln!("e: {}", "handling mode!");
+        println!("p: {}", "handling mode!");
         match entry {
             Downloads(download_command) => handle_downloads(download_command.clone()),
             Hosts(host_command) => handle_hosts(host_command.clone()),
