@@ -29,7 +29,9 @@ pub(crate) mod prelude {
 static API_KEY: LazyLock<String> = LazyLock::new(|| {
     let mut file = File::open(ARGS.api_key_path())
         .inspect_err(|e| {
-            error!("api key : could not locate API KEY : {e}");
+            if !*ARGS.quiet() {
+                error!("api key : could not locate API KEY : {e}")
+            };
             exit(1)
         })
         .unwrap();
@@ -38,16 +40,14 @@ static API_KEY: LazyLock<String> = LazyLock::new(|| {
 
     file.read_to_string(&mut api_key)
         .inspect_err(|e| {
-            error!("api key : failed while reading contents of API KEY : {e}");
+            if !*ARGS.quiet() {
+                error!("api key : failed while reading contents of API KEY : {e}")
+            };
             exit(1)
         })
         .unwrap();
 
-    api_key
-        .lines()
-        .next()
-        .unwrap_or_default()
-        .to_string()
+    api_key.lines().next().unwrap_or_default().to_string()
 });
 
 /// Memoization of the reqwest `Client`.
@@ -74,18 +74,20 @@ where
         let report_err = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
             #[cfg(debug_assertions)]
             return response
-                .inspect_err(|e| warn!("http_response : {e}"));
+                .inspect_err(|e| if !*ARGS.quiet() {
+                    warn!("http_response : {e}")
+                });
 
             #[cfg(not(debug_assertions))]
             return response
-                .inspect_err(|e| {
+                .inspect_err(|e| if !*ARGS.quiet() {
                     error!("http_response : {e}");
                 });
         };
 
         let debug_response = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
             #[cfg(debug_assertions)]
-            return response.inspect(|respons| {
+            return response.inspect(|respons| if !*ARGS.quiet() {
                 eprintln!("STATUS CODE: {}", respons.status());
             });
             #[cfg(not(debug_assertions))]
@@ -99,10 +101,7 @@ where
             Put(_) => HTTP_CLIENT.put(url.into()),
         };
 
-        eprintln!("DEBUG {:#?}", request);
         let response = default_headers(request).body(self.body()).send();
-
-        eprintln!("DEBUG {:#?}", response);
 
         debug_response(report_err(response)).ok()
     }
@@ -110,7 +109,13 @@ where
 
 fn send<B: Into<Body> + Clone, Link: Into<Url>>(request: HttpRequest<B>, to: Link) -> String {
     let report_read_error = |response: std::io::Result<usize>| -> usize {
-        response.inspect_err(|e| warn!("io read: {e}")).unwrap_or(0)
+        response
+            .inspect_err(|e| {
+                if !*ARGS.quiet() {
+                    warn!("io read: {e}")
+                }
+            })
+            .unwrap_or(0)
     };
 
     let mut response_json = String::new();

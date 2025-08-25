@@ -29,4 +29,3 @@ type Id = String;
 pub fn delete_download(id: Id) -> Json {
     send(Delete(""), format!("{DELETE_DOWNLOAD_URL}{id}"))
 }
-
