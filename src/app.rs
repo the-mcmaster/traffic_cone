@@ -5,7 +5,7 @@
 //! This module structures the argument-command
 //! pattern for this binary.
 
-use std::{num::NonZero, sync::LazyLock};
+use std::sync::LazyLock;
 
 use clap::Parser;
 use derive_getters::{Dissolve, Getters};
@@ -36,35 +36,21 @@ pub enum Mode {
     Downloads(Download),
     /// All hosts commands
     #[command(subcommand)]
-    Hosts(Hosts)
+    Hosts(Hosts),
+    /// All torrent commands
+    #[command(subcommand)]
+    Torrents(Torrents),
 }
 
 /// All download commands
-#[derive(Parser)]
-#[derive(Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub enum Download {
     /// Get raw JSON output
     Json,
-    /// List all download metadata.
-    List,
     /// Delete a specific video.
     Delete {
         /// Video ID to be deleted
         id: String,
-    },
-    /// Download from a link.
-    Download {
-        /// Video ID to be deleted
-        link: String,
-    },
-    /// Get list of link(s).
-    ///
-    /// Lack of an argument will list them all by default.
-    Links {
-        /// Get nth link.
-        ///
-        /// Will list the download links otherwise
-        n: Option<NonZero<usize>>,
     },
 }
 impl From<Download> for Mode {
@@ -74,16 +60,31 @@ impl From<Download> for Mode {
 }
 
 /// All hosts commands
-#[derive(Parser)]
-#[derive(Clone, Debug)]
+#[derive(Parser, Clone, Debug)]
 pub enum Hosts {
     /// Get raw JSON output.
     Json,
-    /// List host names.
-    List,
 }
 impl From<Hosts> for Mode {
     fn from(value: Hosts) -> Self {
         Mode::Hosts(value)
+    }
+}
+
+/// All hosts commands
+#[derive(Parser, Clone, Debug)]
+pub enum Torrents {
+    /// Get list of json metadata
+    List,
+
+    /// Add magnet to torrent
+    AddMagnet {
+        /// The link for the magnet
+        link: String,
+    },
+}
+impl From<Torrents> for Mode {
+    fn from(value: Torrents) -> Self {
+        Mode::Torrents(value)
     }
 }
