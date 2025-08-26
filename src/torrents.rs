@@ -46,9 +46,6 @@ struct AddMagnet {
     magnet: Link,
 }
 pub fn add_magnet(link: Link) -> Json {
-    #[cfg(not(debug_assertions))]
-    todo!("this function needs some debugging first");
-
     let body = serde_json::ser::to_string_pretty(&AddMagnet { magnet: link }).unwrap();
 
     send(Post(body), ADD_MAGNET_URL)
