@@ -16,6 +16,10 @@ pub(crate) type Url = String;
 type Body = String;
 
 pub mod app;
+pub mod handle;
+pub mod user;
+pub mod traffic;
+pub mod streaming;
 pub mod download;
 pub mod hosts;
 pub mod torrents;

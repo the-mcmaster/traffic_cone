@@ -1,6 +1,7 @@
 #![feature(never_type)]
 
-use lib::app::{ARGS, handle_mode};
+use lib::app::{ARGS};
+use lib::handle::handle_mode;
 
 #[allow(unused_variables)]
 fn main() -> ! {

@@ -1,4 +1,3 @@
-#![allow(unused_variables)]
 //! # App structure
 //!
 //! This module provides the `ARGS` static structure.
@@ -10,8 +9,6 @@ use std::sync::LazyLock;
 
 use clap::Parser;
 use derive_getters::{Dissolve, Getters};
-
-use crate::prelude::*;
 
 /// A reuseable `'static` variable for argument parsing memoization.
 ///
@@ -146,7 +143,9 @@ pub enum Torrents {
 
     ActiveCount,
     AvailableHosts,
-    AddTorrent,
+    AddTorrent {
+        host: String
+    },
     /// Add magnet to torrent
     AddMagnet {
         /// The link for the magnet
@@ -154,6 +153,7 @@ pub enum Torrents {
     },
     SelectFiles {
         id: String,
+        files: String
     },
     Delete {
         id: String,
@@ -195,124 +195,5 @@ pub enum Settings {
 impl From<Settings> for Mode {
     fn from(value: Settings) -> Self {
         Mode::Settings(value)
-    }
-}
-
-pub(crate) fn handle_user(entry: User) -> ! {
-    use User::*;
-
-    match entry {
-        Json => todo!(),
-    }
-}
-
-pub(crate) fn handle_unrestrict(entry: Unrestrict) -> ! {
-    use Unrestrict::*;
-
-    match entry {
-        Check => todo!(),
-        Link => todo!(),
-        Folder => todo!(),
-        ContainerFile => todo!(),
-        ContainerLink => todo!(),
-    }
-}
-
-pub(crate) fn handle_traffic(entry: Traffic) -> ! {
-    use Traffic::*;
-
-    match entry {
-        Json => todo!(),
-        Details => todo!(),
-    }
-}
-
-pub(crate) fn handle_streaming(entry: Streaming) -> ! {
-    use Streaming::*;
-
-    match entry {
-        Transcode { id } => todo!(),
-        MediaInfos { id } => todo!(),
-    }
-}
-
-pub(crate) fn handle_downloads(entry: Download) -> ! {
-    use Download::*;
-    match entry {
-        Json => {
-            println!("{}", crate::download::get_downloads());
-            exit(0)
-        }
-        Delete { id } => {
-            println!(
-                "{}",
-                String::from(crate::download::delete_download(id.clone()))
-            );
-            exit(0)
-        }
-    }
-}
-
-pub(crate) fn handle_torrents(entry: Torrents) -> ! {
-    use Torrents::*;
-
-    match entry {
-        Json => {
-            println!("{}", crate::torrents::get_torrents());
-            exit(0)
-        }
-        Info { id } => todo!(),
-        ActiveCount => todo!(),
-        AvailableHosts => todo!(),
-        AddTorrent => todo!(),
-        AddMagnet { link } => {
-            println!("{}", crate::torrents::add_magnet(link));
-            exit(0)
-        }
-        SelectFiles { id } => todo!(),
-        Delete { id } => todo!(),
-    }
-}
-
-pub(crate) fn handle_hosts(entry: Hosts) -> ! {
-    use Hosts::*;
-
-    match entry {
-        Json => {
-            println!("{}", crate::hosts::get_hosts());
-            exit(0)
-        }
-        Status => todo!(),
-        Regex => todo!(),
-        RegexFolder => todo!(),
-        Domains => todo!(),
-    }
-}
-
-pub(crate) fn handle_settings(entry: Settings) -> ! {
-    use Settings::*;
-
-    match entry {
-        Json => todo!(),
-        Update => todo!(),
-        ConvertPoints => todo!(),
-        ChangePassword => todo!(),
-        AvatarFile => todo!(),
-        AvatarDelete => todo!(),
-    }
-}
-
-pub fn handle_mode(entry: Mode) -> ! {
-    use Mode::*;
-
-    match entry {
-        User(user) => handle_user(user),
-        Unrestrict(unrestrict_command) => handle_unrestrict(unrestrict_command),
-        Traffic(traffic_command) => handle_traffic(traffic_command),
-        Streaming(streaming_command) => handle_streaming(streaming_command),
-        Downloads(download_command) => handle_downloads(download_command),
-        Torrents(torrent_command) => handle_torrents(torrent_command),
-        Hosts(host_command) => handle_hosts(host_command),
-        Settings(setting_command) => handle_settings(setting_command),
     }
 }

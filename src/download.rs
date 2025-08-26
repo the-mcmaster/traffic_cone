@@ -24,7 +24,6 @@ pub fn get_downloads() -> Json {
 }
 
 type Id = String;
-
 /// Delete a specific download by its id.
 pub fn delete_download(id: Id) -> Json {
     send(Delete(""), format!("{DELETE_DOWNLOAD_URL}{id}"))

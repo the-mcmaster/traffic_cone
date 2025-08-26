@@ -57,11 +57,11 @@ Options:
 ```
 
 # Endpoint Implementation TODO
-⬜ /usr
+✅ /usr
 ⬜ /unrestrict
-⬜ /traffic
-⬜ /streaming
+✅ /traffic
+✅ /streaming
 ✅ /downloads
-⬜ /torrents
+✅ /torrents
 🚧 /hosts
 ⬜ /settings
