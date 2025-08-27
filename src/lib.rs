@@ -3,6 +3,8 @@
 
 //! # traffic_cone API caller
 
+use std::collections::HashMap;
+
 use crate::prelude::*;
 use reqwest::blocking::{
     Client as ReqwestClient, RequestBuilder as ReqwestBuilder, Response as ReqwestResponse,
@@ -16,15 +18,15 @@ pub(crate) type Url = String;
 type Body = String;
 
 pub mod app;
-pub mod handle;
-pub mod user;
-pub mod traffic;
-pub mod streaming;
 pub mod download;
+pub mod handle;
 pub mod hosts;
+pub mod streaming;
 pub mod torrents;
+pub mod traffic;
+pub mod user;
 pub(crate) mod prelude {
-    pub(crate) use crate::{HttpRequest::*, Json, send, debug};
+    pub(crate) use crate::{HttpRequest::*, Json, debug, send};
     pub(crate) use std::{fs::File, io::Read, process::exit, sync::LazyLock};
 }
 
@@ -97,7 +99,7 @@ where
         }
     }
 
-    pub(crate) fn send_to(self, url: impl Into<Url>) -> Option<ReqwestResponse> {
+    pub(crate) fn send_to<'a>(self, url: impl Into<Url>) -> Option<ReqwestResponse> {
         let report_err = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
             return response
                 .inspect_err(|e| error!("http_response : {e}"));
@@ -109,14 +111,21 @@ where
             })
         };
 
-        let request = match self {
-            Get(_) => HTTP_CLIENT.get(url.into()),
-            Post(_) => HTTP_CLIENT.post(url.into()),
-            Delete(_) => HTTP_CLIENT.delete(url.into()),
-            Put(_) => HTTP_CLIENT.put(url.into()),
-        };
+        let body = self.body();
+        let request = default_headers(match self {
+            Get(_) => HTTP_CLIENT.get(url.into()).body(self.body()),
+            Post(_) => HTTP_CLIENT.post(url.into()).form(
+                &serde_json::de::from_str::<HashMap<&str, &str>>(&body)
+                    .inspect_err(|e| error!("derserialization : {e}"))
+                    .unwrap_or_default(),
+            ),
+            Delete(_) => HTTP_CLIENT.delete(url.into()).body(self.body()),
+            Put(_) => HTTP_CLIENT.put(url.into()).body(self.body()),
+        });
 
-        let response = default_headers(request).body(self.body()).send();
+        debug!("{request:?}");
+
+        let response = request.send();
 
         debug_response(report_err(response)).ok()
     }
@@ -143,5 +152,7 @@ fn send<B: Into<Body> + Clone, Link: Into<Url>>(request: HttpRequest<B>, to: Lin
 
 /// Extends the request with default header information.
 fn default_headers(request: ReqwestBuilder) -> ReqwestBuilder {
-    request.header("Authorization", format!("Bearer {}", API_KEY.as_str()))
+    request
+        .header("Authorization", format!("Bearer {}", API_KEY.as_str()))
+        .header("Content-Type", "application/x-www-form-urlencoded")
 }

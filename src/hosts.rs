@@ -20,7 +20,6 @@ pub fn get_regex() -> Json {
     send(Get(""), REGEX_URL)
 }
 
-
 pub fn get_regex_folder() -> Json {
     send(Get(""), REGEX_FOLDER_URL)
 }

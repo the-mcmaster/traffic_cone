@@ -1,11 +1,11 @@
 #![allow(unused_variables)]
 
-use crate::prelude::*;
 use crate::app::*;
+use crate::prelude::*;
 
 pub(crate) fn handle_user(entry: User) -> ! {
-    use User::*;
     use crate::user::*;
+    use User::*;
 
     let response_body = match entry {
         Json => get_user(),
@@ -29,8 +29,8 @@ pub(crate) fn handle_unrestrict(entry: Unrestrict) -> ! {
 }
 
 pub(crate) fn handle_traffic(entry: Traffic) -> ! {
-    use Traffic::*;
     use crate::traffic::*;
+    use Traffic::*;
 
     let response_body = match entry {
         Json => get_traffic(),
@@ -43,8 +43,8 @@ pub(crate) fn handle_traffic(entry: Traffic) -> ! {
 }
 
 pub(crate) fn handle_streaming(entry: Streaming) -> ! {
-    use Streaming::*;
     use crate::streaming::*;
+    use Streaming::*;
 
     let response_body = match entry {
         Transcode { id } => transcode(id),
@@ -57,12 +57,12 @@ pub(crate) fn handle_streaming(entry: Streaming) -> ! {
 }
 
 pub(crate) fn handle_downloads(entry: Download) -> ! {
-    use Download::*;
     use crate::download::*;
+    use Download::*;
 
     let response_body = match entry {
         Json => get_downloads(),
-        Delete { id } => delete_download(id)
+        Delete { id } => delete_download(id),
     };
 
     println!("{response_body}");
@@ -71,8 +71,8 @@ pub(crate) fn handle_downloads(entry: Download) -> ! {
 }
 
 pub(crate) fn handle_torrents(entry: Torrents) -> ! {
-    use Torrents::*;
     use crate::torrents::*;
+    use Torrents::*;
 
     let response_body = match entry {
         Json => get_torrents(),
@@ -91,8 +91,8 @@ pub(crate) fn handle_torrents(entry: Torrents) -> ! {
 }
 
 pub(crate) fn handle_hosts(entry: Hosts) -> ! {
-    use Hosts::*;
     use crate::hosts::*;
+    use Hosts::*;
 
     let response_body = match entry {
         Json => get_hosts(),

@@ -13,7 +13,7 @@ const SELECT_FILES_URL: &str = "https://api.real-debrid.com/rest/1.0/torrents/se
 const DELETE_URL: &str = "https://api.real-debrid.com/rest/1.0/torrents/delete/";
 
 pub fn get_torrents() -> Json {
-    send(Get(""), TORRENTS_URL)
+    send(Get("{ {offset} : {8} }"), TORRENTS_URL)
 }
 
 type Id = String;
@@ -32,7 +32,7 @@ pub fn get_available_hosts() -> Json {
 type Host = String;
 #[derive(Serialize, Deserialize, Getters, Debug)]
 struct AddTorrent {
-    host: Host
+    host: Host,
 }
 pub fn add_torrent(host: Host) -> Json {
     let body = serde_json::ser::to_string_pretty(&AddTorrent { host }).unwrap();
@@ -46,9 +46,9 @@ struct AddMagnet {
     magnet: Link,
 }
 pub fn add_magnet(link: Link) -> Json {
-    let body = serde_json::ser::to_string_pretty(&AddMagnet { magnet: link }).unwrap();
+    let body = format!("{} \"magnet\": \"{}\" {}", '{', link, '}');
 
-    debug!("REQUEST BODY: {body}");
+    debug!("REQUEST BODY: {body:?}");
 
     send(Post(body), ADD_MAGNET_URL)
 }
@@ -56,7 +56,7 @@ pub fn add_magnet(link: Link) -> Json {
 type Files = String;
 #[derive(Serialize, Deserialize, Getters, Debug)]
 struct SelectFiles {
-    files: Files
+    files: Files,
 }
 pub fn select_files(id: Id, files: Files) -> Json {
     let body = serde_json::ser::to_string_pretty(&SelectFiles { files }).unwrap();

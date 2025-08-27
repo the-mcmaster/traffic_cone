@@ -144,7 +144,7 @@ pub enum Torrents {
     ActiveCount,
     AvailableHosts,
     AddTorrent {
-        host: String
+        host: String,
     },
     /// Add magnet to torrent
     AddMagnet {
@@ -153,7 +153,7 @@ pub enum Torrents {
     },
     SelectFiles {
         id: String,
-        files: String
+        files: String,
     },
     Delete {
         id: String,
