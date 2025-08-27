@@ -48,6 +48,8 @@ struct AddMagnet {
 pub fn add_magnet(link: Link) -> Json {
     let body = serde_json::ser::to_string_pretty(&AddMagnet { magnet: link }).unwrap();
 
+    debug!("REQUEST BODY: {body}");
+
     send(Post(body), ADD_MAGNET_URL)
 }
 

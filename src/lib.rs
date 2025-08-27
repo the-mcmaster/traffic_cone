@@ -24,18 +24,43 @@ pub mod download;
 pub mod hosts;
 pub mod torrents;
 pub(crate) mod prelude {
-    pub(crate) use crate::{HttpRequest::*, Json, send};
-    pub(crate) use log::{error, warn};
+    pub(crate) use crate::{HttpRequest::*, Json, send, debug};
     pub(crate) use std::{fs::File, io::Read, process::exit, sync::LazyLock};
+}
+
+#[macro_export]
+macro_rules! debug {
+    ($($tt:tt)*) => {
+        #[cfg(debug_assertions)]
+        if !*crate::ARGS.quiet() {
+            eprintln!("\x1b[38;5;12mDEBUG\x1b[0m:   {}", format!($($tt)*));
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! warn {
+    ($($tt:tt)*) => {
+        if !*crate::ARGS.quiet() {
+            eprintln!("\x1b[38;5;11mWARNING\x1b[0m: {}", format!($($tt)*))
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! error {
+    ($($tt:tt)*) => {
+        if !*crate::ARGS.quiet() {
+            eprintln!("\x1b[38;5;9mERROR\x1b[0m:   {}", format!($($tt)*))
+        }
+    };
 }
 
 /// Memoization of the API Key
 static API_KEY: LazyLock<String> = LazyLock::new(|| {
     let mut file = File::open(ARGS.api_key_path())
         .inspect_err(|e| {
-            if !*ARGS.quiet() {
-                error!("api key : could not locate API KEY : {e}")
-            };
+            error!("api key : could not locate API KEY : {e}");
             exit(1)
         })
         .unwrap();
@@ -44,9 +69,7 @@ static API_KEY: LazyLock<String> = LazyLock::new(|| {
 
     file.read_to_string(&mut api_key)
         .inspect_err(|e| {
-            if !*ARGS.quiet() {
-                error!("api key : failed while reading contents of API KEY : {e}")
-            };
+            error!("api key : failed while reading contents of API KEY : {e}");
             exit(1)
         })
         .unwrap();
@@ -76,26 +99,14 @@ where
 
     pub(crate) fn send_to(self, url: impl Into<Url>) -> Option<ReqwestResponse> {
         let report_err = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
-            #[cfg(debug_assertions)]
             return response
-                .inspect_err(|e| if !*ARGS.quiet() {
-                    warn!("http_response : {e}")
-                });
-
-            #[cfg(not(debug_assertions))]
-            return response
-                .inspect_err(|e| if !*ARGS.quiet() {
-                    error!("http_response : {e}");
-                });
+                .inspect_err(|e| error!("http_response : {e}"));
         };
 
         let debug_response = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
-            #[cfg(debug_assertions)]
-            return response.inspect(|respons| if !*ARGS.quiet() {
-                eprintln!("STATUS CODE: {}", respons.status());
-            });
-            #[cfg(not(debug_assertions))]
-            return response;
+            response.inspect(|respons| if !*ARGS.quiet() {
+                debug!("STATUS CODE: {}", respons.status());
+            })
         };
 
         let request = match self {
