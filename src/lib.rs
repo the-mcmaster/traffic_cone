@@ -1,5 +1,4 @@
 #![feature(never_type)]
-#![allow(non_snake_case)]
 
 //! # traffic_cone API caller
 
@@ -106,8 +105,9 @@ where
         };
 
         let debug_response = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
-            response.inspect(|respons| if !*ARGS.quiet() {
-                debug!("STATUS CODE: {}", respons.status());
+            #[allow(unused_variables)]
+            response.inspect(|response| if !*ARGS.quiet() {
+                debug!("STATUS CODE: {}", response.status());
             })
         };
 
