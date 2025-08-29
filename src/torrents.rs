@@ -1,6 +1,3 @@
-use derive_getters::Getters;
-use serde::{Deserialize, Serialize};
-
 use crate::prelude::*;
 
 const TORRENTS_URL: &str = "https://api.real-debrid.com/rest/1.0/torrents";
@@ -30,14 +27,10 @@ pub fn get_available_hosts() -> Json {
 }
 
 type Host = String;
-#[derive(Serialize, Deserialize, Getters, Debug)]
-struct AddTorrent {
-    host: Host,
-}
 pub fn add_torrent(host: Host) -> Json {
-    let body = serde_json::ser::to_string_pretty(&AddTorrent { host }).unwrap();
+    let body = format!("{} 'host': '{}' {}", '{', host, '}');
 
-    send(Get(body), ADD_TORRENT_URL)
+    send(Put(body), ADD_TORRENT_URL)
 }
 
 type Link = String;
