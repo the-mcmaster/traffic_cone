@@ -41,25 +41,15 @@ pub fn add_torrent(host: Host) -> Json {
 }
 
 type Link = String;
-#[derive(Serialize, Deserialize, Getters, Debug)]
-struct AddMagnet {
-    magnet: Link,
-}
 pub fn add_magnet(link: Link) -> Json {
-    let body = format!("{} \"magnet\": \"{}\" {}", '{', link, '}');
-
-    debug!("REQUEST BODY: {body:?}");
+    let body = format!("{} 'magnet': '{}' {}", '{', link, '}');
 
     send(Post(body), ADD_MAGNET_URL)
 }
 
 type Files = String;
-#[derive(Serialize, Deserialize, Getters, Debug)]
-struct SelectFiles {
-    files: Files,
-}
 pub fn select_files(id: Id, files: Files) -> Json {
-    let body = serde_json::ser::to_string_pretty(&SelectFiles { files }).unwrap();
+    let body = format!("{} 'files': '{}' {}", '{', files, '}');
 
     send(Post(body), format!("{SELECT_FILES_URL}{id}"))
 }

@@ -15,15 +15,20 @@ pub(crate) fn handle_user(entry: User) -> ! {
 }
 
 pub(crate) fn handle_unrestrict(entry: Unrestrict) -> ! {
+    use crate::unrestrict::*;
     use Unrestrict::*;
 
-    match entry {
-        Check => todo!(),
-        Link => todo!(),
-        Folder => todo!(),
-        ContainerFile => todo!(),
-        ContainerLink => todo!(),
-    }
+    let response_body = match entry {
+        Check {link} => check(link),
+        Link {link: link_} => link(link_),
+        Folder {link} => folder(link),
+        ContainerFile => container_file(),
+        ContainerLink {link} => container_link(link),
+    };
+
+    println!("{response_body}");
+
+    exit(0)
 }
 
 pub(crate) fn handle_traffic(entry: Traffic) -> ! {
@@ -55,7 +60,7 @@ pub(crate) fn handle_streaming(entry: Streaming) -> ! {
 }
 
 pub(crate) fn handle_downloads(entry: Download) -> ! {
-    use crate::download::*;
+    use crate::downloads::*;
     use Download::*;
 
     let response_body = match entry {
@@ -106,16 +111,21 @@ pub(crate) fn handle_hosts(entry: Hosts) -> ! {
 }
 
 pub(crate) fn handle_settings(entry: Settings) -> ! {
+    use crate::settings::*;
     use Settings::*;
 
-    match entry {
-        Json => todo!(),
-        Update => todo!(),
-        ConvertPoints => todo!(),
-        ChangePassword => todo!(),
-        AvatarFile => todo!(),
-        AvatarDelete => todo!(),
-    }
+    let response_body = match entry {
+        Json => get_settings(),
+        Update { setting_name, setting_value } => update(setting_name, setting_value),
+        ConvertPoints => convert_points(),
+        ChangePassword => change_password(),
+        AvatarFile => avatar_file(),
+        AvatarDelete => avatar_delete(),
+    };
+
+    println!("{response_body}");
+
+    exit(0)
 }
 
 pub fn handle_mode(entry: Mode) -> ! {

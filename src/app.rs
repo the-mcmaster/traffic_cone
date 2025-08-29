@@ -78,11 +78,11 @@ impl From<User> for Mode {
 /// All unrestrict commands
 #[derive(Parser, Clone, Debug)]
 pub enum Unrestrict {
-    Check,
-    Link,
-    Folder,
+    Check {link: String},
+    Link {link: String},
+    Folder {link: String},
     ContainerFile,
-    ContainerLink,
+    ContainerLink {link: String},
 }
 impl From<Unrestrict> for Mode {
     fn from(value: Unrestrict) -> Self {
@@ -186,7 +186,7 @@ impl From<Hosts> for Mode {
 pub enum Settings {
     /// Get raw JSON output.
     Json,
-    Update,
+    Update {setting_name: String, setting_value: String},
     ConvertPoints,
     ChangePassword,
     AvatarFile,

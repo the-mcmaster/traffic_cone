@@ -17,15 +17,18 @@ pub(crate) type Url = String;
 type Body = String;
 
 pub mod app;
-pub mod download;
 pub mod handle;
-pub mod hosts;
-pub mod streaming;
-pub mod torrents;
-pub mod traffic;
+
 pub mod user;
+pub mod unrestrict;
+pub mod traffic;
+pub mod streaming;
+pub mod downloads;
+pub mod torrents;
+pub mod hosts;
+pub mod settings;
 pub(crate) mod prelude {
-    pub(crate) use crate::{HttpRequest::*, Json, debug, send};
+    pub(crate) use crate::{HttpRequest::*, Json, send};
     pub(crate) use std::{fs::File, io::Read, process::exit, sync::LazyLock};
 }
 
@@ -61,7 +64,7 @@ macro_rules! error {
 static API_KEY: LazyLock<String> = LazyLock::new(|| {
     let mut file = File::open(ARGS.api_key_path())
         .inspect_err(|e| {
-            error!("api key : could not locate API KEY : {e}");
+            error!("api key : could not locate API KEY `{}` : {e}", ARGS.api_key_path());
             exit(1)
         })
         .unwrap();
@@ -70,7 +73,7 @@ static API_KEY: LazyLock<String> = LazyLock::new(|| {
 
     file.read_to_string(&mut api_key)
         .inspect_err(|e| {
-            error!("api key : failed while reading contents of API KEY : {e}");
+            error!("api key : failed while reading contents of API KEY `{}` : {e}", ARGS.api_key_path());
             exit(1)
         })
         .unwrap();
@@ -135,9 +138,7 @@ fn send<B: Into<Body> + Clone, Link: Into<Url>>(request: HttpRequest<B>, to: Lin
     let report_read_error = |response: std::io::Result<usize>| -> usize {
         response
             .inspect_err(|e| {
-                if !*ARGS.quiet() {
-                    warn!("io read: {e}")
-                }
+                warn!("io read: {e}")
             })
             .unwrap_or(0)
     };
