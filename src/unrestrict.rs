@@ -7,19 +7,19 @@ const CONTAINER_FILE_URL: &str = "https://api.real-debrid.com/rest/1.0/unrestric
 const CONTAINER_LINK_URL: &str = "https://api.real-debrid.com/rest/1.0/unrestrict/containerLink";
 
 pub fn check(link: String) -> Json {
-    let body = format!("{} 'link': '{}' {}", '{', link, '}');
+    let body = format!("{} \"link\": \"{}\" {}", '{', link, '}');
 
     send(Post(body), CHECK_URL)
 }
 
 pub fn link(link: String) -> Json {
-    let body = format!("{} 'link': '{}' {}", '{', link, '}');
+    let body = format!("{} \"link\": \"{}\" {}", '{', link, '}');
 
     send(Post(body), LINK_URL)
 }
 
 pub fn folder(link: String) -> Json {
-    let body = format!("{} 'link': '{}' {}", '{', link, '}');
+    let body = format!("{} \"link\": \"{}\" {}", '{', link, '}');
 
     send(Post(body), FOLDER_URL)
 }
@@ -29,7 +29,7 @@ pub fn container_file() -> Json {
 }
 
 pub fn container_link(link: String) -> Json {
-    let body = format!("{} 'link': '{}' {}", '{', link, '}');
+    let body = format!("{} \"link\": \"{}\" {}", '{', link, '}');
 
     send(Post(body), CONTAINER_LINK_URL)
 }
