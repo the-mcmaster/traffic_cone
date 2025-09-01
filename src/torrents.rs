@@ -28,21 +28,21 @@ pub fn get_available_hosts() -> Json {
 
 type Host = String;
 pub fn add_torrent(host: Host) -> Json {
-    let body = format!("{} 'host': '{}' {}", '{', host, '}');
+    let body = format!("{} \"host\": \"{}\" {}", '{', host, '}');
 
     send(Put(body), ADD_TORRENT_URL)
 }
 
 type Link = String;
 pub fn add_magnet(link: Link) -> Json {
-    let body = format!("{} 'magnet': '{}' {}", '{', link, '}');
+    let body = format!("{} \"magnet\": \"{}\" {}", '{', link, '}');
 
     send(Post(body), ADD_MAGNET_URL)
 }
 
 type Files = String;
 pub fn select_files(id: Id, files: Files) -> Json {
-    let body = format!("{} 'files': '{}' {}", '{', files, '}');
+    let body = format!("{} \"files\": \"{}\" {}", '{', files, '}');
 
     send(Post(body), format!("{SELECT_FILES_URL}{id}"))
 }
