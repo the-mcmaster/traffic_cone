@@ -132,7 +132,7 @@ where
 
         let debug_response = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
             #[allow(unused_variables)]
-            response.inspect(|response| debug!("STATUS CODE: {}", response.status()))
+            response.inspect(|response| {debug!("STATUS CODE: {}", response.status()); ()})
         };
 
         let body = self.body();
