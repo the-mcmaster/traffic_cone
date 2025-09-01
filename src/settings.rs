@@ -12,7 +12,10 @@ pub fn get_settings() -> Json {
 }
 
 pub fn update(setting_name: String, setting_value: String) -> Json {
-    let body = format!("{} 'setting_name': '{}', 'setting_value' {} {}", '{', setting_name, setting_value, '}');
+    let body = format!(
+        "{} 'setting_name': '{}', 'setting_value' {} {}",
+        '{', setting_name, setting_value, '}'
+    );
 
     send(Post(body), UPDATE_URL)
 }

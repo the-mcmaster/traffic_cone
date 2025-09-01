@@ -19,11 +19,11 @@ pub(crate) fn handle_unrestrict(entry: Unrestrict) -> ! {
     use Unrestrict::*;
 
     let response_body = match entry {
-        Check {link} => check(link),
-        Link {link: link_} => link(link_),
-        Folder {link} => folder(link),
+        Check { link } => check(link),
+        Link { link: link_ } => link(link_),
+        Folder { link } => folder(link),
         ContainerFile => container_file(),
-        ContainerLink {link} => container_link(link),
+        ContainerLink { link } => container_link(link),
     };
 
     println!("{response_body}");
@@ -116,7 +116,10 @@ pub(crate) fn handle_settings(entry: Settings) -> ! {
 
     let response_body = match entry {
         Json => get_settings(),
-        Update { setting_name, setting_value } => update(setting_name, setting_value),
+        Update {
+            setting_name,
+            setting_value,
+        } => update(setting_name, setting_value),
         ConvertPoints => convert_points(),
         ChangePassword => change_password(),
         AvatarFile => avatar_file(),

@@ -32,6 +32,14 @@ pub struct Args {
     /// Disable's in-app stderr.
     #[arg(short, long, default_value_t = false)]
     quiet: bool,
+
+    /// Turn off color output.
+    /// 
+    /// Stdout is already color-free.
+    /// 
+    /// This disables strerr color output.
+    #[arg(short, long, default_value_t = true)]
+    no_color: bool
 }
 
 /// The API method call
@@ -66,7 +74,7 @@ pub enum Mode {
 /// All user commands
 #[derive(Parser, Clone, Debug)]
 pub enum User {
-    /// Get raw JSON output
+    /// Returns information on the current user.
     Json,
 }
 impl From<User> for Mode {
@@ -78,11 +86,18 @@ impl From<User> for Mode {
 /// All unrestrict commands
 #[derive(Parser, Clone, Debug)]
 pub enum Unrestrict {
-    Check {link: String},
-    Link {link: String},
-    Folder {link: String},
+    /// Check if a file is downloadable on the concerned hoster.
+    Check { link: String },
+    /// Unrestrict a hoster link and get a new unrestricted link
+    Link { link: String },
+    /// Unrestrict a hoster folder link and get individual links.
+    /// 
+    /// This returns an empty array if no links found.
+    Folder { link: String },
+    /// Decrypt a container file (RSDF, CCF, CCF3, DLC)
     ContainerFile,
-    ContainerLink {link: String},
+    /// Decrypt a container file from a link.
+    ContainerLink { link: String },
 }
 impl From<Unrestrict> for Mode {
     fn from(value: Unrestrict) -> Self {
@@ -93,7 +108,9 @@ impl From<Unrestrict> for Mode {
 /// All traffic commands
 #[derive(Parser, Clone, Debug)]
 pub enum Traffic {
+    /// Get traffic informations for limited hosters (limits, current usage, extra packages)
     Json,
+    /// Get traffic details on each hoster used during a defined period
     Details,
 }
 impl From<Traffic> for Mode {
@@ -105,7 +122,9 @@ impl From<Traffic> for Mode {
 /// All streaming commands
 #[derive(Parser, Clone, Debug)]
 pub enum Streaming {
+    /// Get transcoding links for given file, {id} from `downloads` or `unrestrict link`
     Transcode { id: String },
+    /// Get detailled media informations for given file, {id} from `downloads` or `unrestrict-link`
     MediaInfos { id: String },
 }
 impl From<Streaming> for Mode {
@@ -117,9 +136,9 @@ impl From<Streaming> for Mode {
 /// All download commands
 #[derive(Parser, Clone, Debug)]
 pub enum Download {
-    /// Get raw JSON output
+    /// Get user downloads list
     Json,
-    /// Delete a specific video.
+    /// Delete a link from downloads list, returns 204 HTTP code
     Delete {
         /// Video ID to be deleted
         id: String,
@@ -134,27 +153,31 @@ impl From<Download> for Mode {
 /// All torrents commands
 #[derive(Parser, Clone, Debug)]
 pub enum Torrents {
-    /// Get list of json metadata
+    /// Get user torrents list
     Json,
-
+    /// Get all informations on the asked torrent
     Info {
         id: String,
     },
-
+    /// Get currently active torrents number and the current maximum limit
     ActiveCount,
+    /// Get available hosts to upload the torrent to
     AvailableHosts,
+    /// Add a torrent file to download, return a 201 HTTP code
     AddTorrent {
         host: String,
     },
-    /// Add magnet to torrent
+    /// Add a magnet link to download, return a 201 HTTP code
     AddMagnet {
         /// The link for the magnet
         link: String,
     },
+    /// Select files of a torrent to start it, returns 204 HTTP code
     SelectFiles {
         id: String,
         files: String,
     },
+    /// Delete a torrent from torrents list, returns 204 HTTP code
     Delete {
         id: String,
     },
@@ -168,11 +191,15 @@ impl From<Torrents> for Mode {
 /// All hosts commands
 #[derive(Parser, Clone, Debug)]
 pub enum Hosts {
-    /// Get raw JSON output.
+    /// Get supported hosts
     Json,
+    /// Get all supported links Regex, useful to find supported links inside a document
     Status,
+    /// Get all supported folder Regex, useful to find supported links inside a document
     Regex,
+    /// Get all supported folder Regex, useful to find supported links inside a document
     RegexFolder,
+    /// Get all hoster domains supported on the service
     Domains,
 }
 impl From<Hosts> for Mode {
@@ -184,12 +211,20 @@ impl From<Hosts> for Mode {
 /// All hosts commands
 #[derive(Parser, Clone, Debug)]
 pub enum Settings {
-    /// Get raw JSON output.
+    /// Get current user settings with possible values to update
     Json,
-    Update {setting_name: String, setting_value: String},
+    /// Update a user setting, returns 204 HTTP code
+    Update {
+        setting_name: String,
+        setting_value: String,
+    },
+    /// Convert fidelity points, returns 204 HTTP code
     ConvertPoints,
+    /// Send the verification email to change the password, returns 204 HTTP code
     ChangePassword,
+    /// Upload a new user avatar image, returns 204 HTTP code
     AvatarFile,
+    /// Reset user avatar image to default, returns 204 HTTP code
     AvatarDelete,
 }
 impl From<Settings> for Mode {

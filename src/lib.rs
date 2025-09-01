@@ -1,4 +1,6 @@
 #![feature(never_type)]
+#![feature(stmt_expr_attributes)]
+
 
 //! # traffic_cone API caller
 
@@ -19,14 +21,14 @@ type Body = String;
 pub mod app;
 pub mod handle;
 
-pub mod user;
-pub mod unrestrict;
-pub mod traffic;
-pub mod streaming;
 pub mod downloads;
-pub mod torrents;
 pub mod hosts;
 pub mod settings;
+pub mod streaming;
+pub mod torrents;
+pub mod traffic;
+pub mod unrestrict;
+pub mod user;
 pub(crate) mod prelude {
     pub(crate) use crate::{HttpRequest::*, Json, send};
     pub(crate) use std::{fs::File, io::Read, process::exit, sync::LazyLock};
@@ -37,7 +39,12 @@ macro_rules! debug {
     ($($tt:tt)*) => {
         #[cfg(debug_assertions)]
         if !*crate::ARGS.quiet() {
-            eprintln!("\x1b[38;5;12mDEBUG\x1b[0m:   {}", format!($($tt)*));
+            let level = "DEBUG";
+            if *crate::ARGS.no_color() {
+                eprintln!("{level}:   {}", format!($($tt)*))
+            } else {
+                eprintln!("\x1b[38;5;12m{level}\x1b[0m:   {}", format!($($tt)*));
+            }
         }
     };
 }
@@ -46,7 +53,12 @@ macro_rules! debug {
 macro_rules! warn {
     ($($tt:tt)*) => {
         if !*crate::ARGS.quiet() {
-            eprintln!("\x1b[38;5;11mWARNING\x1b[0m: {}", format!($($tt)*))
+            let level = "WARNING";
+            if *crate::ARGS.no_color() {
+                eprintln!("{level}: {}", format!($($tt)*))
+            } else {
+                eprintln!("\x1b[38;5;11m{level}\x1b[0m: {}", format!($($tt)*))
+            }
         }
     };
 }
@@ -55,7 +67,12 @@ macro_rules! warn {
 macro_rules! error {
     ($($tt:tt)*) => {
         if !*crate::ARGS.quiet() {
-            eprintln!("\x1b[38;5;9mERROR\x1b[0m:   {}", format!($($tt)*))
+            let level = "ERROR";
+            if *crate::ARGS.no_color() {
+                eprintln!("{level}:   {}", format!($($tt)*))
+            } else {
+                eprintln!("\x1b[38;5;9m{level}\x1b[0m:   {}", format!($($tt)*))
+            }
         }
     };
 }
@@ -64,7 +81,10 @@ macro_rules! error {
 static API_KEY: LazyLock<String> = LazyLock::new(|| {
     let mut file = File::open(ARGS.api_key_path())
         .inspect_err(|e| {
-            error!("api key : could not locate API KEY `{}` : {e}", ARGS.api_key_path());
+            error!(
+                "api key : could not locate API KEY `{}` : {e}",
+                ARGS.api_key_path()
+            );
             exit(1)
         })
         .unwrap();
@@ -73,7 +93,10 @@ static API_KEY: LazyLock<String> = LazyLock::new(|| {
 
     file.read_to_string(&mut api_key)
         .inspect_err(|e| {
-            error!("api key : failed while reading contents of API KEY `{}` : {e}", ARGS.api_key_path());
+            error!(
+                "api key : failed while reading contents of API KEY `{}` : {e}",
+                ARGS.api_key_path()
+            );
             exit(1)
         })
         .unwrap();
@@ -109,9 +132,7 @@ where
 
         let debug_response = |response: Result<ReqwestResponse, reqwest::Error>| -> Result<ReqwestResponse, reqwest::Error> {
             #[allow(unused_variables)]
-            response.inspect(|response| if !*ARGS.quiet() {
-                debug!("STATUS CODE: {}", response.status());
-            })
+            response.inspect(|response| debug!("STATUS CODE: {}", response.status()))
         };
 
         let body = self.body();
@@ -136,11 +157,7 @@ where
 
 fn send<B: Into<Body> + Clone, Link: Into<Url>>(request: HttpRequest<B>, to: Link) -> String {
     let report_read_error = |response: std::io::Result<usize>| -> usize {
-        response
-            .inspect_err(|e| {
-                warn!("io read: {e}")
-            })
-            .unwrap_or(0)
+        response.inspect_err(|e| warn!("io read: {e}")).unwrap_or(0)
     };
 
     let mut response_json = String::new();
